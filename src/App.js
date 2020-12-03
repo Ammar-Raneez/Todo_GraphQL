@@ -1,4 +1,4 @@
-import { gql, useQuery } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 import './App.css';
 
 //gql parses the queries
@@ -12,15 +12,31 @@ const GET_TODOS = gql `
 	}
 `
 
-//list todos
-//add todps
-//toggle todos
-//delete todos
+//to update todo status, used in useMutation()
+const TOGGLE_TODO = gql `
+	mutation toggleTodo($id: uuid!, $done: Boolean!) {
+		update_todos(where: {id: {_eq: $id}}, _set: {done: $done}) {
+			returning {
+				done
+				id
+				text
+			}
+		}
+	}
+`
+
 function App() {
 	//perform a graphql operation
 	const { data, loading, error } = useQuery(GET_TODOS)
+	const [toggleTodo] = useMutation(TOGGLE_TODO);
+
 	if(loading) return <div>Loading todos...</div>
 	if(error) return <div>Error fetching todos.</div>
+
+	async function handleToggleTodo(todo) {
+		const data = await toggleTodo({ variables: { id: todo.id, done: !todo.done } })
+		console.log(data);
+	}
 
 	return (
 		<div className="vh-100 code flex flex-column items-center bg-purple white pa3 f1-1">
@@ -36,8 +52,8 @@ function App() {
 			{/* Todo list */}
 			<div className="flex items-center justify-center flex-column">
 				{data.todos.map(todo => (
-					<p key={todo.id}>
-						<span className="pointer list pa1 f3">{todo.text}</span>
+					<p onDoubleClick={() => handleToggleTodo(todo)} key={todo.id}>
+						<span className={`pointer list pa1 f3 ${todo.done && "strike"}`}>{todo.text}</span>
 						<button className="bg-transparent bn f4">
 							<span className="red">&times;</span>
 						</button>
