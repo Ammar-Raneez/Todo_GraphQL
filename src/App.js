@@ -24,12 +24,22 @@ function App() {
 
 	return (
 		<div className="app">
-			{data.todos.map(todo => (
-				<p key={todo.id}>
-					<span>{todo.text}</span>
-					<button>&times;</button>
-				</p>
-			))}
+			<h1>GraphQL checklist</h1>
+			{/* todo form */}
+			<form>
+				<input type="text" placeholder="Write your todo" />
+				<button type="submit">Create</button>
+			</form>
+
+			{/* Todo list */}
+			<div>
+				{data.todos.map(todo => (
+					<p key={todo.id}>
+						<span>{todo.text}</span>
+						<button>&times;</button>
+					</p>
+				))}
+			</div>
 		</div>
 	);
 }
